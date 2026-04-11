@@ -75,7 +75,7 @@ gcloud run deploy "${SERVICE_NAME}" \
     --memory=16Gi \
     --cpu=4 \
     --min-instances=1 \
-    --max-instances=5 \
+    --max-instances=2 \
     --timeout=300 \
     --concurrency=4 \
     --cpu-boost \

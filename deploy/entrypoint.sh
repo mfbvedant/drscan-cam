@@ -20,13 +20,22 @@ if [ -f "${MODEL_FILE}" ]; then
 else
     if [ -n "${GCS_MODEL_BUCKET}" ]; then
         echo "[↓] Downloading retinal model from gs://${GCS_MODEL_BUCKET}/${GCS_MODEL_PATH}..."
-        gsutil -q cp "gs://${GCS_MODEL_BUCKET}/${GCS_MODEL_PATH}" "${MODEL_FILE}" 2>/dev/null || {
-            # Fallback: try gcloud storage
-            gcloud storage cp "gs://${GCS_MODEL_BUCKET}/${GCS_MODEL_PATH}" "${MODEL_FILE}" 2>/dev/null || {
-                echo "[!] Could not download retinal model from GCS"
-                echo "[!] Retinal modality will use demo/mock mode"
-                export RETINAL_MODEL_PATH=""
-            }
+        python -c "
+import sys
+from google.cloud import storage
+try:
+    print('[↓] Authenticating and downloading model via google-cloud-storage package...')
+    client = storage.Client()
+    bucket = client.bucket('${GCS_MODEL_BUCKET}')
+    blob = bucket.blob('${GCS_MODEL_PATH}')
+    blob.download_to_filename('${MODEL_FILE}')
+except Exception as e:
+    print(f'[!] Download failed: {e}')
+    sys.exit(1)
+" || {
+            echo "[!] Could not download retinal model from GCS"
+            echo "[!] Retinal modality will use demo/mock mode"
+            export RETINAL_MODEL_PATH=""
         }
         if [ -f "${MODEL_FILE}" ]; then
             SIZE=$(du -sh "${MODEL_FILE}" | cut -f1)

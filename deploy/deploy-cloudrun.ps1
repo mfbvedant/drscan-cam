@@ -65,7 +65,7 @@ Write-Host ""
 Write-Host "[4/5] Deploying to Cloud Run..."  -ForegroundColor Yellow
 $EnvVars = "GCS_MODEL_BUCKET=$GcsBucket,GCS_MODEL_PATH=models/best_model.h5,TF_CPP_MIN_LOG_LEVEL=2,TF_ENABLE_ONEDNN_OPTS=1,OMP_NUM_THREADS=4,WORKERS=1"
 
-gcloud run deploy $ServiceName --image="$ImageName" --project=$ProjectId --region=$Region --platform=managed --allow-unauthenticated --port=8080 --memory=16Gi --cpu=4 --min-instances=1 --max-instances=5 --timeout=300 --concurrency=4 --cpu-boost --set-env-vars=$EnvVars
+gcloud run deploy $ServiceName --image="$ImageName" --project=$ProjectId --region=$Region --platform=managed --allow-unauthenticated --port=8080 --memory=16Gi --cpu=4 --min-instances=1 --max-instances=2 --timeout=300 --concurrency=4 --cpu-boost --set-env-vars=$EnvVars
 
 # Step 5: Get URL
 Write-Host ""

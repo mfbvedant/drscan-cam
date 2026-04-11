@@ -1,0 +1,37 @@
+# GCloud ignore — controls what gets UPLOADED to Cloud Build
+# Same as .dockerignore but used by gcloud builds submit
+
+# Large hackathon folder (already ported to backend/)
+hack bluebit/
+
+# Git
+.git/
+.gitignore
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# Models (downloaded from GCS at runtime)
+*.h5
+models/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Docs & tests
+test_*.py
+Phase-Task-*.csv
+
+# Planning
+.planning/
+
+# OS files
+.DS_Store
+Thumbs.db
