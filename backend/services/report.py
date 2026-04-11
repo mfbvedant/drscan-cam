@@ -105,6 +105,14 @@ def _get_modality_observations(modality: str, diagnosis: str, severity: int) -> 
             "Emphysema": "Centrilobular or panlobular emphysematous changes noted. Quantitative assessment may be helpful. Pulmonary function testing recommended.",
             "Pulmonary Fibrosis": "Reticular pattern with possible honeycombing identified. Consider UIP vs NSIP pattern. Multidisciplinary discussion recommended.",
         }
+    elif modality == Modality.RETINAL_FUNDUS:
+        obs = {
+            "No DR": "No microaneurysms, hemorrhages, or exudates detected. Retinal vasculature appears normal. Optic disc and macula within normal limits.",
+            "Mild DR": "Scattered microaneurysms detected. No significant hemorrhages or exudates. Recommend follow-up screening in 6–9 months.",
+            "Moderate DR": "Multiple microaneurysms and dot-blot hemorrhages present. Hard exudates may be visible near the macula. Ophthalmology referral recommended.",
+            "Severe DR": "Extensive hemorrhages across multiple quadrants. Cotton wool spots and venous beading observed. High risk of progression — urgent ophthalmology referral within 1 month.",
+            "Proliferative DR": "Neovascularization detected at optic disc or elsewhere. Preretinal or vitreous hemorrhage may be present. Immediate referral to retina specialist required. Consider pan-retinal photocoagulation or anti-VEGF therapy.",
+        }
     else:
         return ""
 

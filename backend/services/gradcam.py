@@ -22,19 +22,52 @@ def generate_heatmap(
     preprocessed: np.ndarray,
     model=None,
     target_class: int = 0,
+    model_attention: np.ndarray = None,
 ) -> tuple:
     """
     Generate a Grad-CAM-style heatmap.
 
-    If model is None (demo mode), uses image feature analysis to produce
-    a plausible attention map highlighting regions of medical interest.
+    If model_attention is provided (e.g., from BiomedCLIP ViT), uses it directly.
+    If model is provided, uses standard Grad-CAM.
+    Otherwise (demo mode), uses image feature analysis.
 
     Returns:
         (heatmap_overlay_image, regions_of_concern)
     """
+    # Use model attention map if available (from BiomedCLIP ViT)
+    if model_attention is not None:
+        return _heatmap_from_model_attention(original_image, model_attention)
+
     if model is not None:
         return _gradcam_from_model(original_image, preprocessed, model, target_class)
     return _heatmap_from_features(original_image)
+
+
+def _heatmap_from_model_attention(
+    image: Image.Image,
+    attention_map: np.ndarray,
+) -> tuple:
+    """
+    Generate heatmap from a model's attention map (e.g., ViT patch norms).
+    The attention_map is a small grid (e.g., 14x14) that gets upscaled.
+    """
+    h_orig, w_orig = np.array(image).shape[:2]
+
+    # Resize attention map to image size
+    heatmap = cv2.resize(attention_map.astype(np.float32), (w_orig, h_orig))
+    heatmap = _normalize(heatmap)
+
+    # Smooth for visual appeal
+    heatmap = cv2.GaussianBlur(heatmap, (21, 21), 0)
+    heatmap = _normalize(heatmap)
+
+    # Detect regions of concern
+    regions = _detect_regions(heatmap, image.size)
+
+    # Create overlay
+    overlay = _apply_colormap_overlay(image, heatmap, alpha=0.45)
+
+    return overlay, regions
 
 
 def _heatmap_from_features(image: Image.Image) -> tuple:

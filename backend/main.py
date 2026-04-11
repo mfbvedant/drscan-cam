@@ -1,6 +1,6 @@
 """
-DRScan Cam — FastAPI Application Entry Point
-AI-Powered Medical Image Analysis Platform
+DRScan AI — FastAPI Application Entry Point
+AI-Powered Medical Image Analysis & Diabetic Retinopathy Screening Platform
 """
 
 from fastapi import FastAPI
@@ -44,6 +44,7 @@ app.include_router(predict.router)
 # Serve frontend static files
 # ---------------------------------------------------------------------------
 FRONTEND_DIR = Path(__file__).parent.parent / "frontend"
+RETINAL_ASSETS = Path(__file__).parent.parent / "hack bluebit" / "frontend" / "assets"
 
 if FRONTEND_DIR.exists():
     app.mount("/css", StaticFiles(directory=FRONTEND_DIR / "css"), name="css")
@@ -54,10 +55,24 @@ if FRONTEND_DIR.exists():
     if assets_dir.exists():
         app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
 
+# Mount retinal sample images from hack bluebit if available
+if RETINAL_ASSETS.exists():
+    app.mount("/retinal-assets", StaticFiles(directory=RETINAL_ASSETS), name="retinal-assets")
+
 
 @app.get("/")
-async def serve_frontend():
-    """Serve the main dashboard."""
+async def serve_landing():
+    """Serve the landing page."""
+    landing_path = FRONTEND_DIR / "landing.html"
+    if landing_path.exists():
+        return FileResponse(landing_path)
+    # Fallback to scan dashboard if no landing page
+    return await serve_scanner()
+
+
+@app.get("/scan")
+async def serve_scanner():
+    """Serve the scan/analysis dashboard."""
     index_path = FRONTEND_DIR / "index.html"
     if index_path.exists():
         return FileResponse(index_path)
@@ -82,10 +97,18 @@ async def favicon():
 async def startup_event():
     """Initialize services on startup."""
     print(f"[+] {APP_NAME} v{APP_VERSION} starting...")
-    print(f"    Inference mode: {__import__('backend.config', fromlist=['INFERENCE_MODE']).INFERENCE_MODE}")
     print(f"    Frontend: {'Found' if FRONTEND_DIR.exists() else 'Not found'}")
+    print(f"    Landing page: {'Found' if (FRONTEND_DIR / 'landing.html').exists() else 'Not found'}")
+    print(f"    Retinal assets: {'Found' if RETINAL_ASSETS.exists() else 'Not found'}")
     print(f"    API docs: /api/docs")
+
+    # Initialize inference engine (auto-loads BiomedCLIP + retinal model if available)
+    from backend.services.inference import engine
+    engine.initialize()
+
+    print(f"    Inference mode: {engine.mode}")
     print(f"    Ready to analyze medical images!")
+    print(f"    Routes: / (landing) | /scan (dashboard) | /api/predict | /api/health")
 
 
 @app.on_event("shutdown")

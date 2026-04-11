@@ -21,6 +21,7 @@ from backend.services.preprocessing import (
 )
 from backend.services.gradcam import generate_heatmap, heatmap_to_base64
 from backend.services.inference import engine
+from backend.services.retinal import retinal_engine
 from backend.services.report import generate_report
 
 router = APIRouter(tags=["predict"])
@@ -33,7 +34,7 @@ router = APIRouter(tags=["predict"])
 )
 async def predict(
     file: UploadFile = File(..., description="Medical image file"),
-    modality: str = Form(..., description="Imaging modality: chest_xray, brain_mri, or lung_ct"),
+    modality: str = Form(..., description="Imaging modality: chest_xray, brain_mri, lung_ct, or retinal_fundus"),
 ):
     """
     Analyze a medical image and return diagnosis, confidence, heatmap, and recommendations.
@@ -59,6 +60,36 @@ async def predict(
     if validation_error:
         raise HTTPException(status_code=400, detail=validation_error)
 
+    # ===========================================================
+    # RETINAL FUNDUS — dedicated pipeline
+    # ===========================================================
+    if modality == Modality.RETINAL_FUNDUS:
+        try:
+            result = retinal_engine.predict(file_bytes)
+            return PredictionResponse(
+                diagnosis=result["diagnosis"],
+                severity=result["severity"],
+                severity_label=result["severity_label"],
+                confidence=result["confidence"],
+                top_predictions=result["top_predictions"],
+                heatmap_base64=result.get("heatmap_base64", ""),
+                original_base64="",  # retinal engine handles heatmap overlay only
+                modality=modality,
+                recommendation=result["recommendation"],
+                urgency=result.get("urgency"),
+                regions_of_concern=result.get("regions_of_concern", []),
+                inference_time_ms=result.get("inference_time_ms", 0),
+                model_version=result.get("model_version", "unknown"),
+            )
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Retinal analysis failed: {str(e)}",
+            )
+
+    # ===========================================================
+    # STANDARD MODALITIES — existing pipeline
+    # ===========================================================
     try:
         # --- Load & preprocess ---
         image = load_image_from_bytes(file_bytes, file.filename or "image.jpg")
@@ -71,7 +102,11 @@ async def predict(
         result = engine.predict(resized, preprocessed, modality)
 
         # --- Generate heatmap ---
-        heatmap_overlay, regions = generate_heatmap(resized, preprocessed)
+        # Use model attention map if available (BiomedCLIP), else feature-based
+        model_attention = engine.get_attention_map(resized)
+        heatmap_overlay, regions = generate_heatmap(
+            resized, preprocessed, model_attention=model_attention
+        )
 
         # --- Generate report ---
         report = generate_report(
@@ -97,8 +132,8 @@ async def predict(
             modality=modality,
             recommendation=report["recommendation"],
             regions_of_concern=regions,
-            inference_time_ms=result["inference_time_ms"],
-            model_version=result["model_version"],
+            inference_time_ms=result.get("inference_time_ms", 0),
+            model_version=result.get("model_version", "unknown"),
         )
 
     except Exception as e:

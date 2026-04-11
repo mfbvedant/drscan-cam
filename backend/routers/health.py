@@ -3,8 +3,9 @@ DRScan Cam — Health Check Router
 """
 
 from fastapi import APIRouter
-from backend.config import APP_VERSION, INFERENCE_MODE, Modality
+from backend.config import APP_VERSION, Modality
 from backend.schemas import HealthResponse
+from backend.services.inference import engine
 
 router = APIRouter(tags=["health"])
 
@@ -15,6 +16,6 @@ async def health_check():
     return HealthResponse(
         status="healthy",
         version=APP_VERSION,
-        inference_mode=str(INFERENCE_MODE),
+        inference_mode=str(engine.mode),
         modalities=[m.value for m in Modality],
     )

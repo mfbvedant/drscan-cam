@@ -347,6 +347,12 @@ function renderReport(data) {
     lines.push('**Clinical Recommendation:**');
     lines.push(data.recommendation);
 
+    // Show urgency for retinal DR
+    if (data.urgency) {
+        lines.push('');
+        lines.push(`**Urgency Level:** ${data.urgency.toUpperCase()}`);
+    }
+
     // Render with bold formatting
     const reportEl = dom.reportContent();
     reportEl.innerHTML = lines.join('\n').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
@@ -381,6 +387,7 @@ function formatModality(modality) {
         chest_xray: 'Chest X-Ray',
         brain_mri: 'Brain MRI',
         lung_ct: 'Lung CT',
+        retinal_fundus: 'Retinal Fundus',
     };
     return map[modality] || modality;
 }
@@ -422,7 +429,7 @@ function downloadReport() {
     const data = state.results;
     const text = [
         '═══════════════════════════════════════════════════════',
-        '    DRScan Cam — AI Medical Image Analysis Report',
+        '    DRScan AI — Medical Image Analysis Report',
         '═══════════════════════════════════════════════════════',
         '',
         `Date: ${new Date().toLocaleString()}`,
@@ -478,8 +485,42 @@ document.addEventListener('DOMContentLoaded', () => {
     initModalityTabs();
     initUpload();
 
-    // Select default modality
-    selectModality('chest_xray');
+    // Check URL params for pre-selected modality (from landing page deep links)
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlModality = urlParams.get('modality');
+    const validModalities = ['chest_xray', 'brain_mri', 'lung_ct', 'retinal_fundus'];
 
-    console.log('🏥 DRScan Cam dashboard initialized');
+    if (urlModality && validModalities.includes(urlModality)) {
+        selectModality(urlModality);
+    } else {
+        selectModality('chest_xray');
+    }
+
+    // Check backend health & model status
+    checkHealth();
+
+    console.log('DRScan AI dashboard initialized');
 });
+
+async function checkHealth() {
+    try {
+        const res = await fetch('/api/health');
+        const data = await res.json();
+        const badge = document.getElementById('status-badge');
+        if (badge) {
+            if (data.inference_mode && data.inference_mode.includes('biomedclip')) {
+                badge.innerHTML = '<span class="status-dot"></span> BiomedCLIP AI';
+            } else if (data.inference_mode && !data.inference_mode.includes('DEMO')) {
+                badge.innerHTML = '<span class="status-dot"></span> AI Online';
+            } else {
+                badge.innerHTML = '<span class="status-dot"></span> System Online';
+            }
+        }
+    } catch (e) {
+        const badge = document.getElementById('status-badge');
+        if (badge) {
+            badge.innerHTML = '<span class="status-dot" style="background:#ef4444"></span> Offline';
+        }
+    }
+}
+

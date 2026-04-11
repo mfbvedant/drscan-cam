@@ -43,6 +43,11 @@ class PredictionResponse(BaseModel):
         description="Detected regions of concern",
     )
 
+    # Urgency (retinal DR)
+    urgency: Optional[str] = Field(
+        None, description="Urgency level for retinal DR: routine, low, moderate, high, critical"
+    )
+
     # Metadata
     inference_time_ms: float = Field(..., description="Inference time in milliseconds")
     model_version: str = Field(default="demo-v1", description="Model version used")

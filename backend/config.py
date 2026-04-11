@@ -13,6 +13,7 @@ class Modality(str, Enum):
     CHEST_XRAY = "chest_xray"
     BRAIN_MRI = "brain_mri"
     LUNG_CT = "lung_ct"
+    RETINAL_FUNDUS = "retinal_fundus"
 
 
 class InferenceMode(str, Enum):
@@ -50,6 +51,13 @@ MODALITY_CLASSES: Dict[str, List[str]] = {
         "Consolidation",
         "Emphysema",
         "Pulmonary Fibrosis",
+    ],
+    Modality.RETINAL_FUNDUS: [
+        "No DR",
+        "Mild DR",
+        "Moderate DR",
+        "Severe DR",
+        "Proliferative DR",
     ],
 }
 
@@ -105,6 +113,33 @@ SEVERITY_LEVELS = {
 }
 
 # ---------------------------------------------------------------------------
+# Retinal DR-specific severity recommendations & urgency levels
+# ---------------------------------------------------------------------------
+RETINAL_RECOMMENDATIONS = {
+    0: "No diabetic retinopathy detected. Routine screening recommended in 12 months.",
+    1: "Mild non-proliferative DR detected. Follow-up screening recommended in 6–9 months.",
+    2: "Moderate non-proliferative DR detected. Referral to ophthalmologist recommended within 3 months.",
+    3: "Severe non-proliferative DR detected. Urgent referral to ophthalmologist within 1 month.",
+    4: "Proliferative diabetic retinopathy detected. Immediate referral to retina specialist required.",
+}
+
+RETINAL_URGENCY_LEVELS = {
+    0: "routine",
+    1: "low",
+    2: "moderate",
+    3: "high",
+    4: "critical",
+}
+
+RETINAL_SEVERITY_COLORS = {
+    0: "#22c55e",
+    1: "#84cc16",
+    2: "#eab308",
+    3: "#f97316",
+    4: "#ef4444",
+}
+
+# ---------------------------------------------------------------------------
 # Modality display metadata
 # ---------------------------------------------------------------------------
 MODALITY_INFO = {
@@ -132,18 +167,28 @@ MODALITY_INFO = {
             "pulmonary pathologies in CT images."
         ),
     },
+    Modality.RETINAL_FUNDUS: {
+        "name": "Retinal Fundus",
+        "icon": "visibility",
+        "description": (
+            "Screen for diabetic retinopathy severity (Grade 0–4) "
+            "from retinal fundus photographs with Grad-CAM explainability."
+        ),
+    },
 }
 
 # ---------------------------------------------------------------------------
 # App Settings
 # ---------------------------------------------------------------------------
-APP_NAME = "DRScan Cam"
-APP_VERSION = "1.0.0"
-APP_DESCRIPTION = "AI-Powered Medical Image Analysis Platform"
+APP_NAME = "DRScan AI"
+APP_VERSION = "2.0.0"
+APP_DESCRIPTION = "AI-Powered Medical Image Analysis & Diabetic Retinopathy Screening Platform"
 
 INFERENCE_MODE = os.getenv("INFERENCE_MODE", InferenceMode.DEMO)
 MODEL_PATH = os.getenv("MODEL_PATH", "backend/models/")
 IMAGE_SIZE = int(os.getenv("IMAGE_SIZE", "224"))
+RETINAL_IMAGE_SIZE = (384, 384)
+RETINAL_MODEL_PATH = os.getenv("RETINAL_MODEL_PATH", r"C:\Users\VEDAN\Downloads\best_model.h5")
 MAX_FILE_SIZE_MB = 50
 MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".dcm", ".dicom"}
