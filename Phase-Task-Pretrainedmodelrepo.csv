@@ -1,0 +1,8 @@
+"Phase","Task","Pre‑trained model / repo"
+"Foundation","Define modality & task","Use ViT‑based backbones (ViT, RAD‑DINO, BiomedCLIP) for X‑ray; SwinUNETR for 3D CT/MRI. arxiv+2"
+"Data","DICOM, splits","Use MONAI / Pydicom loaders; MIMIC‑CXR, CheXpert, BraTS, LIDC‑IDRI as base. developer.nvidia+1"
+"Models","Segmentation","nnU‑Net, MedSAM. pmc.ncbi.nlm.nih+1"
+"Models","Classification","microsoft/rad‑dino, ViT‑base, or fine‑tuned ViT. arxiv+1"
+"Models","Multimodal / zero‑shot","microsoft/BiomedCLIP‑... huggingface"
+"Models","Report generation","LLaVA‑Med (GitHub + Hugging Face). huggingface+1"
+"Models","3D CT/MRI","SwinUNETR (MONAI Model Zoo). developer.nvidia"

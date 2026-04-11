@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="DRScan Cam — AI-Powered Medical Image Analysis Platform. Analyze Chest X-Rays, Brain MRI, and Lung CT scans with explainable AI.">
+    <title>DRScan Cam — AI Medical Image Analysis</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <!-- Lucide icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <!-- ================================================================== -->
+    <!-- HEADER                                                             -->
+    <!-- ================================================================== -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="/" class="logo" id="logo">
+                <div class="logo-icon">🏥</div>
+                <div class="logo-text">
+                    <span class="logo-title">DRScan Cam</span>
+                    <span class="logo-subtitle">AI Medical Imaging</span>
+                </div>
+            </a>
+            <div class="header-status">
+                <div class="status-badge">
+                    <span class="status-dot"></span>
+                    System Online
+                </div>
+                <span class="version-tag">v1.0.0</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- ================================================================== -->
+        <!-- MODALITY SELECTOR                                                  -->
+        <!-- ================================================================== -->
+        <section class="modality-section">
+            <div class="section-label">Select Imaging Modality</div>
+            <div class="modality-tabs" id="modality-tabs">
+                <div class="modality-tab active" data-modality="chest_xray" id="tab-chest-xray">
+                    <span class="modality-icon">🫁</span>
+                    <span class="modality-name">Chest X-Ray</span>
+                    <span class="modality-desc">Pneumonia, effusions, cardiomegaly & thoracic conditions</span>
+                </div>
+                <div class="modality-tab" data-modality="brain_mri" id="tab-brain-mri">
+                    <span class="modality-icon">🧠</span>
+                    <span class="modality-name">Brain MRI</span>
+                    <span class="modality-desc">Tumors, lesions & structural abnormalities</span>
+                </div>
+                <div class="modality-tab" data-modality="lung_ct" id="tab-lung-ct">
+                    <span class="modality-icon">🔬</span>
+                    <span class="modality-name">Lung CT</span>
+                    <span class="modality-desc">Nodules, ground glass opacities & pulmonary pathology</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================== -->
+        <!-- MAIN GRID: UPLOAD + RESULTS                                        -->
+        <!-- ================================================================== -->
+        <section class="main-grid">
+
+            <!-- Upload Card -->
+            <div class="card upload-card" id="upload-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <div class="card-title-icon">📤</div>
+                        Upload Medical Image
+                    </div>
+                </div>
+
+                <div class="upload-zone" id="upload-zone">
+                    <!-- Default upload content -->
+                    <div id="upload-content" style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+                        <div class="upload-icon-wrap">📁</div>
+                        <div class="upload-text">
+                            <div class="upload-text-main">Drag & drop your image here</div>
+                            <div class="upload-text-sub">or <span>browse files</span></div>
+                        </div>
+                        <div class="upload-formats">
+                            <span class="format-tag">JPEG</span>
+                            <span class="format-tag">PNG</span>
+                            <span class="format-tag">DICOM</span>
+                            <span class="format-tag">TIFF</span>
+                            <span class="format-tag">BMP</span>
+                        </div>
+                    </div>
+
+                    <!-- Preview (hidden initially) -->
+                    <div class="preview-container" id="preview-container" style="display: none;">
+                        <img class="preview-image" id="preview-image" alt="Uploaded medical image preview">
+                        <div class="preview-info">
+                            <span class="preview-filename" id="preview-filename"></span>
+                            <div class="preview-actions">
+                                <button class="btn-clear" id="btn-clear">✕ Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <input type="file" class="file-input" id="file-input"
+                       accept=".jpg,.jpeg,.png,.bmp,.tiff,.tif,.dcm,.dicom">
+
+                <button class="btn-analyze" id="btn-analyze" disabled>
+                    🔬 Analyze Image
+                </button>
+            </div>
+
+            <!-- Results Card -->
+            <div class="card results-card" id="results-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <div class="card-title-icon">📊</div>
+                        Analysis Results
+                    </div>
+                </div>
+
+                <!-- Empty state -->
+                <div class="results-empty" id="results-empty">
+                    <div class="results-empty-icon">🔍</div>
+                    <div class="results-empty-text">
+                        Upload a medical image and click "Analyze" to see AI-powered diagnostic insights
+                    </div>
+                </div>
+
+                <!-- Loading state -->
+                <div class="results-loading" id="results-loading">
+                    <div class="loader-ring"></div>
+                    <div class="loader-text">Analyzing medical image...</div>
+                    <div class="loader-subtext">Running AI inference & generating heatmap</div>
+                </div>
+
+                <!-- Results content -->
+                <div class="results-content" id="results-content">
+                    <!-- Diagnosis header -->
+                    <div class="diagnosis-header">
+                        <div class="severity-badge severity-0" id="severity-badge">0</div>
+                        <div class="diagnosis-info">
+                            <div class="diagnosis-label" id="diagnosis-label">—</div>
+                            <div class="severity-label severity-0" id="severity-label-text">—</div>
+                        </div>
+                    </div>
+
+                    <!-- Confidence gauge + predictions -->
+                    <div class="confidence-section">
+                        <div class="gauge-container">
+                            <svg class="gauge-svg" viewBox="0 0 100 100">
+                                <circle class="gauge-bg" cx="50" cy="50" r="40"/>
+                                <circle class="gauge-fill" id="gauge-fill" cx="50" cy="50" r="40"/>
+                            </svg>
+                            <div class="gauge-text">
+                                <span class="gauge-value" id="gauge-value">--</span>
+                                <span class="gauge-unit">% conf</span>
+                            </div>
+                        </div>
+                        <div class="predictions-list" id="predictions-list">
+                            <!-- Filled dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Recommendation -->
+                    <div class="recommendation-box" id="recommendation-text">
+                        —
+                    </div>
+
+                    <!-- Inference meta -->
+                    <div class="inference-meta">
+                        <div class="meta-item">
+                            <span class="meta-icon">⚡</span>
+                            <span class="meta-value" id="inference-time">—</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-icon">🤖</span>
+                            <span class="meta-value" id="model-version">—</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================== -->
+        <!-- HEATMAP VIEWER                                                     -->
+        <!-- ================================================================== -->
+        <section class="heatmap-section">
+            <div class="card heatmap-card" id="heatmap-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <div class="card-title-icon">🔥</div>
+                        Grad-CAM Attention Heatmap
+                    </div>
+                </div>
+
+                <div class="heatmap-grid">
+                    <div class="heatmap-pane">
+                        <span class="heatmap-pane-label">Original</span>
+                        <img class="heatmap-image" id="original-image" alt="Original medical image">
+                    </div>
+                    <div class="heatmap-pane">
+                        <span class="heatmap-pane-label">AI Attention Map</span>
+                        <img class="heatmap-image" id="heatmap-image" alt="Grad-CAM heatmap overlay">
+                    </div>
+                </div>
+
+                <div class="regions-list" id="regions-list">
+                    <!-- Filled dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================== -->
+        <!-- CLINICAL REPORT                                                    -->
+        <!-- ================================================================== -->
+        <section class="report-section">
+            <div class="card report-card" id="report-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <div class="card-title-icon">📋</div>
+                        Clinical Report
+                    </div>
+                </div>
+
+                <div class="report-content" id="report-content">
+                    <!-- Filled dynamically -->
+                </div>
+
+                <div class="report-disclaimer" id="report-disclaimer">
+                    <!-- Filled dynamically -->
+                </div>
+
+                <div class="report-actions">
+                    <button class="btn-secondary" onclick="downloadReport()" id="btn-download-report">
+                        📥 Download Report
+                    </button>
+                    <button class="btn-secondary" onclick="newAnalysis()" id="btn-new-analysis">
+                        🔄 New Analysis
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ================================================================== -->
+    <!-- FOOTER                                                             -->
+    <!-- ================================================================== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-text">
+                DRScan Cam — AI-Powered Medical Image Analysis Platform
+            </div>
+            <div class="footer-tech">
+                <span class="footer-tech-item">FastAPI</span>
+                <span class="footer-tech-item">Python</span>
+                <span class="footer-tech-item">OpenCV</span>
+                <span class="footer-tech-item">GCP</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/app.js"></script>
+    <script>
+        // Initialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>

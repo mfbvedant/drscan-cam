@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Model weights
+backend/models/*.h5
+backend/models/*.pt
+backend/models/*.onnx
+backend/models/*.pth
+backend/models/*.pb
+backend/models/*.bin
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Environment
+.env
+.env.local
+
+# Data
+data/
+*.dcm
+*.dicom
+
+# Logs
+*.log
+logs/
+
+# Node (if any)
+node_modules/
