@@ -1,4 +1,4 @@
-# DRScan Cam — Dependencies
+# DRScan AI — Dependencies
 # Core
 fastapi>=0.100.0
 uvicorn[standard]>=0.23.0
@@ -19,6 +19,10 @@ pydicom>=2.4.0
 torch>=2.0.0
 open_clip_torch>=2.23.0
 transformers>=4.35.0
+huggingface_hub>=0.19.0
 
-# Optional: MedSAM segmentation
-# transformers  # already listed above
+# AI Models - Retinal (ResNet50 diabetic retinopathy)
+tensorflow>=2.14.0
+
+# Cloud (GCS model storage for Cloud Run / Compute Engine)
+google-cloud-storage>=2.12.0

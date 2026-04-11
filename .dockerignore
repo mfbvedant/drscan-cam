@@ -1,0 +1,39 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+.venv
+venv
+env
+
+# IDE
+.vscode
+.idea
+*.swp
+
+# Hackathon source (already ported)
+hack bluebit/
+
+# Local models (downloaded from GCS at runtime)
+*.h5
+models/
+
+# Docs & tests
+*.md
+test_*.py
+Phase-Task-*.csv
+
+# Deploy scripts (not needed in container)
+deploy/
+!deploy/entrypoint.sh
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Planning
+.planning/
