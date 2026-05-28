@@ -1,3 +1,13 @@
+---
+title: DRScan AI
+emoji: 🏥
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 8080
+pinned: false
+---
+
 # 🏥 DRScan Cam — AI-Powered Medical Image Analysis Platform
 
 > Upload a chest X-ray, brain MRI, or lung CT → Get instant AI-powered diagnosis, confidence scores, Grad-CAM heatmaps, and clinical recommendations.

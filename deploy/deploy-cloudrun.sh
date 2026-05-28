@@ -72,9 +72,9 @@ gcloud run deploy "${SERVICE_NAME}" \
     --platform=managed \
     --allow-unauthenticated \
     --port=8080 \
-    --memory=16Gi \
-    --cpu=4 \
-    --min-instances=1 \
+    --memory=4Gi \
+    --cpu=2 \
+    --min-instances=0 \
     --max-instances=2 \
     --timeout=300 \
     --concurrency=4 \
